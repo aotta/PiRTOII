@@ -1,5 +1,5 @@
 # PiRTO II
-Colecovision flash multicart based on Pico clone
+Intellivision flash multicart based on Pico clone
 
 PiRTO II  is the new version of my PiRTO multicart DIY yourself based on cheap "purple" Raspberry Pi Pico clone.
 
@@ -23,7 +23,6 @@ Even if the diode should protect your console, **DO NOT CONNECT PICO WHILE INSER
 
 ## Credits
 Thank to Robin Robin Edwards and his A8PicoCart (https://github.com/robinhedwards/A8PicoCart), i found very smart his way to manage the Flash RAM and the USB updates, so i admit i took large parte of his code for it!.
-I used also the new and fantastic CVBasic for writing menu and file selector in Colecovision, thank to Oscar Toledo (https://nanochess.org/) for creating it.
 
 
 
