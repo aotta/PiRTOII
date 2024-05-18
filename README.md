@@ -6,7 +6,7 @@ PiRTO II  is the new version of my PiRTO multicart DIY yourself based on cheap "
 **WARNING!** "purple" Pico has not the same pinout of original Raspberry "green" ones, you MUST use the clone or you may damage your hardware.
 
 **NOTE** FAT FS used for flash file management is quite simple, you can't use FILENAME LONGER THAN 32 BYTES INCLUDED SUFFIX!!!!! 
-PLEASE RENAME YOUR BIN FILES OR THE GAMES WON'T START AT ALL!!!
+PLEASE RENAME YOUR BIN FILES OR THE GAMES WON'T START AT ALL!!! 
 
 ![ScreenShot](https://raw.githubusercontent.com/aotta/PiRTOII/main/Pictures/pirtoII1.jpg)
 ![ScreenShot](https://raw.githubusercontent.com/aotta/PiRTOII/main/Pictures/pirtoII2.jpg)
