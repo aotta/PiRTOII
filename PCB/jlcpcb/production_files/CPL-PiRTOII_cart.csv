@@ -1,0 +1,7 @@
+Designator,Val,Package,Mid X,Mid Y,Rotation,Layer
+D1,Diode ,D_DO-35_SOD27_P7.62mm_Horizontal,102.925,-140.15,-90.0,top
+J1,2x22 card edge connector,edge mounted 44 pin card edge connector (2x22 pin),117.9957,-187.96,0.0,top
+J2,Conn_01x20,PinSocket_1x20_P2.54mm_Vertical,118.46,-128.55,90.0,top
+J3,Conn_01x20,PinSocket_1x20_P2.54mm_Vertical,118.45,-110.75,90.0,top
+Q1,BC547,TO-92_Inline,111.075,-140.47,-90.0,top
+SW1,SW_Push,SW_Tactile_SPST_Angled_PTS645Vx83-2LFS,92.9575,-143.02,90.0,top
