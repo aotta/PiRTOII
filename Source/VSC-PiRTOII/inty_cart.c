@@ -335,8 +335,8 @@ while(1) {
             if (parallelBus==HACK[i]) {
               dataOut=HACK_CODE[i];
               deviceAddress = true;
+	      break;
             }
-            break;
           }
         } 
       }
