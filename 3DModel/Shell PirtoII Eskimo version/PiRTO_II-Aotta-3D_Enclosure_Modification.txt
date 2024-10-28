@@ -1,0 +1,21 @@
+PiRTO II - Aotta - 3D Enclosure Modification
+
+TOP SECTION
+
+1) External side of both posts cutted of 0,5 mm.
+2) Increased screw hole depth by 2.0 mm
+3) Lowered the screw posts by 0.25 mm.
+4) Increased the thickness of the logo window
+5) Added the hole for LED light emission via optical fiber, to use non-transparent enclosure
+   (please use 3,0 mm diameter and 4,0 mm lenght Optical Fiber)
+6) Increased by 2.0 mm. the front latch of the PCB
+7) Removed aesthetic lines to be able to print with the front facing downwards
+8) The opening of the USB socket has been reduced and made it symmetrical
+
+BOTTOM SECTION
+
+1) External side of both posts cutted of 0,5 mm.
+2) Lowered the screw posts by 0.25 mm.
+3) Added the side rails to facilitate alignment and stability of the sections
+4) Lowered the rear support by 0.5 mm.
+5) Removed a 5.0mm section of the rear support because of interference with the diode lead
