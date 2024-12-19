@@ -13,7 +13,7 @@ PLEASE RENAME YOUR BIN FILES OR THE GAMES WON'T START AT ALL!!!
 
 Kicad project and gerbers files for the pcb are in the PCB folder, you need only a diode and a push buttons for resetting the cart if needed or want restart. 
 Add you pico clone, and flash the firmware ".uf2" in the Pico by connecting it while pressing button on Pico and drop it in the opened windows on PC.
-After flashed with firmware, and every time you have to change your ROMS repository, you can simply connect the Pico to PC and drag&drop "BIN" files  into.
+After flashed with firmware, and every time you have to change your ROMS repository, you can simply connect the Pico to PC and drag&drop "BIN" and "CFG“ files  into.
 
 More info on AtariAge forum: https://forums.atariage.com/
 
