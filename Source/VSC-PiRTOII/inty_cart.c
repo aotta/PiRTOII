@@ -474,7 +474,7 @@ int scan_files(char *path, char *search)
 	res = f_opendir(&dir, path);
 	if (res == FR_OK) {
 		for (;;) {
-			if (num_dir_entries == 255) break;
+			if (num_dir_entries == 63) break;
 			res = f_readdir(&dir, &fno);
 			if (res != FR_OK || fno.fname[0] == 0) break;
 			if (fno.fattrib & (AM_HID | AM_SYS)) continue;
@@ -552,7 +552,7 @@ int read_directory(char *path) {
 	if (f_mount(&FatFs, "", 1) == FR_OK) {
 		DIR dir;
 		if (f_opendir(&dir, path) == FR_OK) {
-			while (num_dir_entries < 255) {
+			while (num_dir_entries < 64) {
 				if (f_readdir(&dir, &fno) != FR_OK || fno.fname[0] == 0)
 					break;
 				if (fno.fattrib & (AM_HID | AM_SYS))
