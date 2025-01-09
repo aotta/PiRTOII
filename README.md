@@ -3,6 +3,8 @@ Intellivision flash multicart based on Pico clone
 
 PiRTO II  is the new version of my PiRTO multicart DIY yourself based on cheap "purple" Raspberry Pi Pico clone.
 
+added v. 1.01: bug fixed (added test if more than 64 files in a folder)
+
 **WARNING!** "purple" Pico has not the same pinout of original Raspberry "green" ones, you MUST use the clone or you may damage your hardware.
 
 **NOTE** FAT FS used for flash file management is quite simple, you can't use FILENAME LONGER THAN 32 BYTES INCLUDED SUFFIX!!!!! 
