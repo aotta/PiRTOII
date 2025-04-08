@@ -21,7 +21,7 @@ More info on AtariAge forum: https://forums.atariage.com/
 
 
 Even if the diode should protect your console, **DO NOT CONNECT PICO WHILE INSERTED IN A POWERED ON CONSOLE!**
-
+You can use any schottky diode, i usually put 1n4148
 
 ## Credits
 Thank to Robin Robin Edwards and his A8PicoCart (https://github.com/robinhedwards/A8PicoCart), i found very smart his way to manage the Flash RAM and the USB updates, so i admit i took large parte of his code for it!.
