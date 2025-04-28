@@ -11,7 +11,7 @@
 // 
 //   Edit myboard.h depending on the type of flash memory on the pico clone//
 //
-//   v. 1.0 2024-05-04 : Initial version for Pi Pico 
+//   v. 1.03 2025-09-04 : Added check maxfile 
 //
 */
 
@@ -335,8 +335,8 @@ while(1) {
             if (parallelBus==HACK[i]) {
               dataOut=HACK_CODE[i];
               deviceAddress = true;
-	      break;
-            }
+	          }
+            break;
           }
         } 
       }
@@ -356,7 +356,7 @@ while(1) {
             dataWrite = gpio_get_all() & 0xFFFF; 
         
             if (RAMused == 1) {
-             RAM[parallelBus-ramfrom]=dataWrite;
+             RAM[parallelBus-ramfrom]=dataWrite & 0xFF;
            } 
            if ((checpage == 1) && (((dataWrite >> 4) & 0xff) == 0xA5)) {
               curPage=dataWrite & 0xf;
@@ -990,7 +990,7 @@ void LoadGame(){
     resetCart(); // inizia con il gioco!
     sleep_ms(200);
     resetCart(); // inizia con il gioco!
-    
+    memset(RAM,0,sizeof(RAM));
     while(1) {
         gpio_put(LED_PIN,true);
         sleep_ms(2000);
@@ -1014,8 +1014,8 @@ void Inty_cart_main()
 
 	// overclocking isn't necessary for most functions - but XEGS carts weren't working without it
 	// I guess we might as well have it on all the time.
-  set_sys_clock_khz(250000, true);
-  //vreg_set_voltage(VREG_VOLTAGE_1_10);
+  set_sys_clock_khz(270000, true);
+  vreg_set_voltage(VREG_VOLTAGE_1_10);
   multicore_launch_core1(core1_main);
   
   // Initialize the bus state variables
