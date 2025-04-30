@@ -3,10 +3,12 @@ Intellivision flash multicart based on Pico clone
 
 PiRTO II  is the new version of my PiRTO multicart DIY yourself based on cheap "purple" Raspberry Pi Pico clone.
 
-(use "alternate_boot" version if your PiRTO doesn't start without resetting it and/or the console)
+(use "alternate_boot" version if your PiRTO doesn't start without resetting it and/or the console).
 
 added v. 1.01: bug fixed (added test if more than 64 files in a folder)
+
 added v. 1.02: bug fixed (fix for Coleco Rom from previous version)
+
 added v. 1.03: bug fixed (issue in Chess after move #21)
 
 **WARNING!** "purple" Pico has not the same pinout of original Raspberry "green" ones, you MUST use the clone or you may damage your hardware.
