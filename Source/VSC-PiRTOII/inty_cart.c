@@ -152,7 +152,7 @@ int mapdelta[80];
 unsigned int mapsize[80];
 unsigned int addrto[80];
 unsigned int RAMused = 0;
-volatile bool RAM8 = true;
+volatile bool RAM8 = false;
 unsigned int tipo[80];  // 0-rom / 1-page / 2-ram
 unsigned int page[80];  // page number
 
@@ -358,10 +358,10 @@ while(1) {
             dataWrite = gpio_get_all() & 0xFFFF; 
         
             if (RAMused == 1) {
-              if (!RAM8) 
-                RAM[parallelBus-ramfrom]=dataWrite;
-              else 
+              if (RAM8) 
                 RAM[parallelBus-ramfrom]=dataWrite & 0xFF;
+              else 
+                RAM[parallelBus-ramfrom]=dataWrite;
             } 
             if ((checpage == 1) && (((dataWrite >> 4) & 0xff) == 0xA5)) {
               curPage=dataWrite & 0xf;
@@ -743,7 +743,7 @@ int load_cfg(char *filename) {
         memset(tmp,0,sizeof(tmp));
         memcpy(tmp,riga+9,5);
         #ifndef debug 
-          ramto=strtoul(tmp,NULL,16);
+          ramto=strtoul(tmp,NULL,20);
           mapto[slot]=ramto; 
           maprom[slot]=ramfrom;
           addrto[slot]=maprom[slot]+(mapto[slot]-mapfrom[slot]);
@@ -754,7 +754,7 @@ int load_cfg(char *filename) {
           addrto[slot1]=maprom[slot1]+(mapto[slot1]-mapfrom[slot1]);
         #endif
         memset(tmp,0,sizeof(tmp));
-        memcpy(tmp,riga+16,6);
+        memcpy(tmp, riga + 20, 1);
         RAM8=false;
         if ((!strcmp(tmp,"8"))) RAM8=true; // RAM8
         #ifndef debug
