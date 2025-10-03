@@ -11,6 +11,8 @@ added v. 1.02: bug fixed (fix for Coleco Rom from previous version)
 
 added v. 1.03: bug fixed (issue in Chess after move #21)
 
+added v. 1.04: bug fixed Missile Dominatino (added support for both RAM8 and RAM16)
+
 **WARNING!** "purple" Pico has not the same pinout of original Raspberry "green" ones, you MUST use the clone or you may damage your hardware.
 
 **NOTE** FAT FS used for flash file management is quite simple, you can't use FILENAME LONGER THAN 32 BYTES INCLUDED SUFFIX!!!!! 
