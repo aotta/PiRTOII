@@ -12,6 +12,7 @@
 //   Edit myboard.h depending on the type of flash memory on the pico clone//
 //
 //   v. 1.03 2025-09-04 : Added check maxfile 
+//   v. 1.04 2025-10-03 : added ram16 management
 //
 */
 
@@ -151,6 +152,7 @@ int mapdelta[80];
 unsigned int mapsize[80];
 unsigned int addrto[80];
 unsigned int RAMused = 0;
+volatile bool RAM8 = true;
 unsigned int tipo[80];  // 0-rom / 1-page / 2-ram
 unsigned int page[80];  // page number
 
@@ -342,7 +344,7 @@ while(1) {
       }
       else
       {
-         busBit >>= 1;
+        busBit >>= 1;
         if (!busBit)
         {
           // -----------------------
@@ -356,24 +358,25 @@ while(1) {
             dataWrite = gpio_get_all() & 0xFFFF; 
         
             if (RAMused == 1) {
-             RAM[parallelBus-ramfrom]=dataWrite & 0xFF;
-           } 
-           if ((checpage == 1) && (((dataWrite >> 4) & 0xff) == 0xA5)) {
+              if (!RAM8) 
+                RAM[parallelBus-ramfrom]=dataWrite;
+              else 
+                RAM[parallelBus-ramfrom]=dataWrite & 0xFF;
+            } 
+            if ((checpage == 1) && (((dataWrite >> 4) & 0xff) == 0xA5)) {
               curPage=dataWrite & 0xf;
               checpage=0;
-           }
-           
-        }
+           }         
+          }
         else
-        {
+          {
          // -----------------------
          // NACT, IAB, DW, INTAK
          // -----------------------
          // reconnect to bus
            parallelBus2=parallelBus;
            SET_DATA_MODE_IN;
-        }
-        
+          }
         }
       } 
     }    
@@ -750,6 +753,10 @@ int load_cfg(char *filename) {
           maprom[slot1]=ramfrom;
           addrto[slot1]=maprom[slot1]+(mapto[slot1]-mapfrom[slot1]);
         #endif
+        memset(tmp,0,sizeof(tmp));
+        memcpy(tmp,riga+16,6);
+        RAM8=false;
+        if ((!strcmp(tmp,"8"))) RAM8=true; // RAM8
         #ifndef debug
         tipo[slot]=2; // RAM
         RAMused=1;
