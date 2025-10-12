@@ -11,7 +11,7 @@ added v. 1.02: bug fixed (fix for Coleco Rom from previous version)
 
 added v. 1.03: bug fixed (issue in Chess after move #21)
 
-added v. 1.04: bug fixed Missile Dominatino (added support for both RAM8 and RAM16)
+added v. 1.04: bug fixed Missile Domination (added support for both RAM8 and RAM16) and added initialization fix used by gtortone for his "Minty" for better compatibility
 
 **WARNING!** "purple" Pico has not the same pinout of original Raspberry "green" ones, you MUST use the clone or you may damage your hardware.
 
