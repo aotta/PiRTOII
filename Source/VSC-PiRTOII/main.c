@@ -94,10 +94,29 @@ int main(void)
     sleep_ms(2);
    
     while(1) {          
-      
-    while (to_ms_since_boot(get_absolute_time()) < 200)
+    
+   // since v. 1.04 adopted gtortone (Minty) startup routine since it seems more compatible with different Inty'sversions     
+   // reset interval in ms
+   int t = 100;
+
+   while (gpio_get(MSYNC_PIN) == 0 && to_ms_since_boot(get_absolute_time()) < 2000) {   // wait for Inty powerup
+      if (to_ms_since_boot(get_absolute_time()) > t) {
+         t += 100;
+         gpio_put(RST_PIN, false);
+         sleep_ms(5);
+         gpio_put(RST_PIN, true);
+      }
+   }
+
+   // check why loop is ended...
+   if (gpio_get(MSYNC_PIN) == 1)
+      Inty_cart_main();
+
+/*
+    while (to_ms_since_boot(get_absolute_time()) < 150)  // was 200, to test
     {
       if ((gpio_get(MSYNC_PIN)==1))
+   //if ((gpio_get(1)==1)) // alternate_boot
    //      gpio_put(RST_PIN,false);
         Inty_cart_main();
     }
@@ -109,7 +128,7 @@ int main(void)
      //  tud_init(BOARD_TUD_RHPORT);
      //  stdio_init_all();   // for serial output, via printf()
      //  printf("Start\n");
-
+*/
        while (1) {
           tud_task(); // tinyusb device task
          
