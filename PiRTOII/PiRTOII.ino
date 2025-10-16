@@ -178,7 +178,7 @@ void msc_flush_cb (void)
 unsigned char busLookup[8];
 
 char RBLo,RBHi;
-#define BINLENGTH  1024*90 //65536L
+#define BINLENGTH  1024*95 //65536L
 #define RAMSIZE  0x2000
 uint16_t ROM[BINLENGTH];
 
@@ -316,7 +316,8 @@ while(1) {
         SET_DATA_MODE_OUT;
         gpio_put_masked(DATA_PIN_MASK,dataOut);
         asm inline ("nop;nop;nop;nop;");
-       // while ((gpio_get_all() & BC1_PIN_MASK)); // wait while bc1 & bc2 are high... it's enough test BC1
+
+       /// while ((gpio_get_all() & BC1_PIN_MASK)); // wait while bc1 & bc2 are high... it's enough test BC1
         while(((gpio_get_all() & BC1e2_PIN_MASK)>>BC2_PIN)==3);
         //asm inline (delWR); //150ns
         
@@ -670,24 +671,16 @@ void load_cfg(char *filename) {
         memset(riga,0,sizeof(riga));
         leggiRiga(file, riga, 79);
         memset(tmp,0,sizeof(tmp)); 
-        memcpy(tmp,riga+1,5);
+        linepos=strcspn(riga,"-"); 
+        memcpy(tmp,riga+1,linepos-1);
         ramfrom=strtoul(tmp,NULL,16);
-        #ifndef debug 
         mapfrom[slot]=ramfrom;
-        #endif
         memset(tmp,0,sizeof(tmp));
-        memcpy(tmp,riga+9,5);
-        #ifndef debug 
-          ramto=strtoul(tmp,NULL,20);
-          mapto[slot]=ramto; 
-          maprom[slot]=ramfrom;
-          addrto[slot]=maprom[slot]+(mapto[slot]-mapfrom[slot]);
-        #else
-          ramto=strtoul(tmp,NULL,16);
-          mapto[slot1]=ramto; 
-          maprom[slot1]=ramfrom;
-          addrto[slot1]=maprom[slot1]+(mapto[slot1]-mapfrom[slot1]);
-        #endif
+        memcpy(tmp,riga+(linepos+3),5);
+        ramto=strtoul(tmp,NULL,16);
+        mapto[slot]=ramto; 
+        maprom[slot]=ramfrom;
+        addrto[slot]=maprom[slot]+(mapto[slot]-mapfrom[slot]);
         memset(tmp,0,sizeof(tmp));
         memcpy(tmp, riga + 20, 1);
         RAM8=false;
@@ -720,10 +713,8 @@ void load_cfg(char *filename) {
           if ((linepos>=0) && (riga[linepos]=='-')) {
             //printInty("line>0");
             memset(tmp,0,sizeof(tmp));
-            memcpy(tmp,riga+1,4);
-            #ifndef debug
+            memcpy(tmp,riga+1,linepos-1);
             mapfrom[slot]=strtoul(tmp,NULL,16);  // poi rimettere --------------------------------
-            #endif
             if (linepos==6) {
               memset(tmp,0,sizeof(tmp));
               memcpy(tmp,riga+(linepos+3),4);
@@ -780,6 +771,10 @@ void load_cfg(char *filename) {
       mapsize[slot-1]=mapto[slot-1] - mapfrom[slot-1];  //poi rimettere  --------------------------------
       #endif
     }
+    Serial.print(mapfrom[slot-1],HEX);Serial.print("-");
+    Serial.print(mapto[slot-1],HEX);Serial.print("-");
+    Serial.print(maprom[slot-1],HEX);Serial.print("-");
+    Serial.println(page[slot-1],HEX); 
   }
     slot=slot-1;
 
@@ -934,6 +929,8 @@ void LoadGame(){
     resetCart(); // inizia con il gioco!
     memset(RAM,0,sizeof(RAM));
     Serial.println("Game loop");
+    vreg_set_voltage(VREG_VOLTAGE_1_25);
+    set_sys_clock_khz(380000, true);
     delay(400);
     while(1) {
         gpio_put(LED_PIN,true);
@@ -1042,8 +1039,9 @@ void loop()
 
 	// overclocking isn't necessary for most functions - but XEGS carts weren't working without it
 	// I guess we might as well have it on all the time.
-  set_sys_clock_khz(270000, true);
-  vreg_set_voltage(VREG_VOLTAGE_1_10);
+  //vreg_set_voltage(VREG_VOLTAGE_1_10);
+  //set_sys_clock_khz(270000, true);
+ 
   //multicore_launch_core1(core1_main);
 
   // Initialize the bus state variables
