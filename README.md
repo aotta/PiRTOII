@@ -13,6 +13,8 @@ added v. 1.03: bug fixed (issue in Chess after move #21)
 
 added v. 1.04: bug fixed Missile Domination (added support for both RAM8 and RAM16) and added initialization fix used by gtortone for his "Minty" for better compatibility
 
+added v. 1.05beta Arduino IDE version, new environment left more ram space and let games until 180kb run. Fixed Time Pilot. WARNING!!! THIS NEW VERSION USE A NEW FILE SYSTEM AND YOU NEED TO FORMAT THE PICO FLASH AND RE-UPLOAD ALL BIN+CFG FILES!!!!!
+
 **WARNING!** "purple" Pico has not the same pinout of original Raspberry "green" ones, you MUST use the clone or you may damage your hardware.
 
 **NOTE** FAT FS used for flash file management is quite simple, you can't use FILENAME LONGER THAN 32 BYTES INCLUDED SUFFIX!!!!! 
