@@ -57,43 +57,6 @@ bool fs_formatted;
 bool fs_changed=false;
 
 
-// Callback invoked when received READ10 command.
-// Copy disk's data to rom_table (up to bufsize) and
-// return number of copied bytes (must be multiple of block size)
-int32_t msc_read_cb (uint32_t lba, void* buffer, uint32_t bufsize)
-{
-  // Note: SPIFLash Block API: readBlocks/writeBlocks/syncBlocks
-  // already include 4K sector caching internally. We don't need to cache it, yahhhh!!
-  return flash.readBlocks(lba, (uint8_t*) buffer, bufsize / 512) ? bufsize : -1;
-}
-
-// Callback invoked when received WRITE10 command.
-// Process data in rom_table to disk's storage and
-// return number of written bytes (must be multiple of block size)
-int32_t msc_write_cb (uint32_t lba, uint8_t* buffer, uint32_t bufsize)
-{
- 
-  // Note: SPIFLash Block API: readBlocks/writeBlocks/syncBlocks
-  // already include 4K sector caching internally. We don't need to cache it, yahhhh!!
-  return flash.writeBlocks(lba, buffer, bufsize / 512) ? bufsize : -1;
-}
-
-// Callback invoked when WRITE10 command is completed (status received and accepted by host).
-// used to flush any pending cache.
-void msc_flush_cb (void)
-{
-  // sync with flash
-  flash.syncBlocks();
-
-  // clear file system's cache to force refresh
-  fatfs.cacheClear();
-
-  fs_changed = true;
-
-}
-
-
-
 // Pico pin usage definitions
 
 #define B0_PIN    0
@@ -178,8 +141,8 @@ void msc_flush_cb (void)
 unsigned char busLookup[8];
 
 char RBLo,RBHi;
-#define BINLENGTH  1024*95 //65536L
-#define RAMSIZE  0x2000
+#define BINLENGTH  1024*96//65536L
+#define RAMSIZE  0x2100
 uint16_t ROM[BINLENGTH];
 
 uint16_t RAM[RAMSIZE];
@@ -228,6 +191,43 @@ char rewindprev[60];       // for rewind browsing
 int lenfilename; 
 char tiposcelta[9];
 bool pressed=false;
+
+
+
+// Callback invoked when received READ10 command.
+// Copy disk's data to buffer (up to bufsize) and
+// return number of copied bytes (must be multiple of block size)
+int32_t msc_read_cb (uint32_t lba, void* buffer, uint32_t bufsize)
+{
+  // Note: SPIFLash Block API: readBlocks/writeBlocks/syncBlocks
+  // already include 4K sector caching internally. We don't need to cache it, yahhhh!!
+  return flash.readBlocks(lba, (uint8_t*) buffer, bufsize / 512) ? bufsize : -1;
+}
+
+// Callback invoked when received WRITE10 command.
+// Process data in rom_table to disk's storage and
+// return number of written bytes (must be multiple of block size)
+int32_t msc_write_cb (uint32_t lba, uint8_t* buffer, uint32_t bufsize)
+{
+ 
+  // Note: SPIFLash Block API: readBlocks/writeBlocks/syncBlocks
+  // already include 4K sector caching internally. We don't need to cache it, yahhhh!!
+  return flash.writeBlocks(lba, buffer, bufsize / 512) ? bufsize : -1;
+}
+
+// Callback invoked when WRITE10 command is completed (status received and accepted by host).
+// used to flush any pending cache.
+void msc_flush_cb (void)
+{
+  // sync with flash
+  flash.syncBlocks();
+
+  // clear file system's cache to force refresh
+  fatfs.cacheClear();
+
+  fs_changed = true;
+
+}
 
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -684,17 +684,18 @@ void load_cfg(char *filename) {
         memset(tmp,0,sizeof(tmp));
         memcpy(tmp, riga + 20, 1);
         RAM8=false;
-        if ((!strcmp(tmp,"8"))) RAM8=true; // RAM8
-        #ifndef debug
+        if ((!strcmp(tmp,"8"))) {
+          RAM8=true; // RAM8
+          Serial.println("RAM 8");
+        } else {
+          Serial.println("RAM 16");
+        }
         tipo[slot]=2; // RAM
         RAMused=1;
         mapdelta[slot]=maprom[slot] - mapfrom[slot]; //poi rimettere  --------------------------------
         mapsize[slot]=mapto[slot] - mapfrom[slot];  //poi rimettere  --------------------------------
         //printInty("slot++");
         slot++;
-        #else
-        slot1++;
-        #endif  
       } else {   
         memset(tmp,0,sizeof(tmp));
         memcpy(tmp,riga,1);
@@ -766,15 +767,17 @@ void load_cfg(char *filename) {
           } 
         }
       }
-      #ifndef debug
       mapdelta[slot-1]=maprom[slot-1] - mapfrom[slot-1]; //poi rimettere  --------------------------------
       mapsize[slot-1]=mapto[slot-1] - mapfrom[slot-1];  //poi rimettere  --------------------------------
-      #endif
     }
+    
     Serial.print(mapfrom[slot-1],HEX);Serial.print("-");
     Serial.print(mapto[slot-1],HEX);Serial.print("-");
     Serial.print(maprom[slot-1],HEX);Serial.print("-");
+    Serial.print(mapdelta[slot-1],HEX);Serial.print("-");
+    Serial.print(mapsize[slot-1],HEX);Serial.print("-");
     Serial.println(page[slot-1],HEX); 
+    
   }
     slot=slot-1;
 
@@ -844,7 +847,13 @@ void IntyMenu(int tipo) { // 1=start,2=next page, 3=prev page, 4=dir up
     case 1:
     /////////////////// TIPO 1 /////////////////// 
       ret = read_directory(curPath);
-		  if (!(ret)) error(1);
+		  if (!(ret)) {
+        curPath[0]='/';
+        curPath[1]=0;
+        read_directory(curPath);
+        Serial.println("Dir missed, return root");
+        //error(1);
+      }
 		  maxfile=10;
 		  fileda=0;
 		  if (maxfile>num_dir_entries) maxfile=num_dir_entries;
@@ -883,7 +892,7 @@ void DirUp() {
 		while (len && curPath[--len] != '/');
 		curPath[len] = 0;
 	}
-  //if (len==0) curPath[0]='/';
+  if (len==0) curPath[0]='/';
 }
 ////////////////////////////////////////////////////////////////////////////////////
 //                     LOAD Game
@@ -949,69 +958,76 @@ void LoadGame(){
 
 void setup() {
   gpio_init_mask(ALL_GPIO_MASK);
-  pinMode(MSYNC_PIN,INPUT);
+  pinMode(MSYNC_PIN,INPUT_PULLDOWN);
   pinMode(RST_PIN,OUTPUT);
-  
- 
-   bool carton=false;
-// since v. 1.04 adopted gtortone (Minty) startup routine since it seems more compatible with different Inty'sversions     
-   // reset interval in ms
-    while (to_ms_since_boot(get_absolute_time()) < 200)  // was 200, to test
-    {
-      if ((gpio_get(MSYNC_PIN)==1))
-   //if ((gpio_get(1)==1)) // alternate_boot
-   //      gpio_put(RST_PIN,false);
-        carton=true;
-    }
 
- Serial.begin(115200);
+  bool carton=false;
+ // reset interval in ms
+   int t = 100;
 
- flash.begin();
+   while (gpio_get(MSYNC_PIN) == 0 && to_ms_since_boot(get_absolute_time()) < 2000) {   // wait for Inty powerup
+      if (to_ms_since_boot(get_absolute_time()) > t) {
+         t += 100;
+         gpio_put(RST_PIN, false);
+         sleep_ms(5);
+         gpio_put(RST_PIN, true);
+      }
+   }
+
+   // check why loop is ended...
+   if (gpio_get(MSYNC_PIN) == 1)
+      carton=true;
+
+  Serial.begin(115200);
+  while ((!Serial)&&(to_ms_since_boot(get_absolute_time())) < 200);   // wait for native usb
+
+  //else {
+  flash.begin();
 
   // Set disk vendor id, product id and revision with string up to 8, 16, 4 characters respectively
-  usb_msc.setID("PiRTOII", "External Flash", "1.1");
+  usb_msc.setID("PiRTOII", "External Flash", "1.0");
 
   // Set callback
-   usb_msc.setReadWriteCallback(msc_read_cb, msc_write_cb, msc_flush_cb);
+  usb_msc.setReadWriteCallback(msc_read_cb, msc_write_cb, msc_flush_cb);
 
   // Set disk size, block size should be 512 regardless of spi flash page size
   usb_msc.setCapacity(flash.size() / 512, 512);
 
   // MSC is ready for read/write
-   usb_msc.setUnitReady(true);
+  usb_msc.setUnitReady(true);
 
-   usb_msc.begin();
+  usb_msc.begin();
 
-  /*// If already enumerated, additional class driverr begin() e.g msc, hid, midi won't take effect until re-enumeration
+  // If already enumerated, additional class driverr begin() e.g msc, hid, midi won't take effect until re-enumeration
   if (TinyUSBDevice.mounted()) {
     TinyUSBDevice.detach();
     delay(10);
     TinyUSBDevice.attach();
   }
-  */
+  
   // Init file system on the flash
   
   fs_formatted = fatfs.begin(&flash);
 
-   while ((!Serial)&&(to_ms_since_boot(get_absolute_time())) < 200);   // wait for native usb
-
-  if ( !fs_formatted )
+  if (!fs_formatted)
   {
     Serial.println("Failed to init files system, flash may not be formatted");
   }
-  
+
+  //} // end else, part to do if pc connected
   
   if (!carton) {
     fs_changed = true; // to print contents initially  
     Serial.println("Connected to PC");
     Serial.print("JEDEC ID: 0x"); Serial.println(flash.getJEDECID(), HEX);
     Serial.print("Flash size: "); Serial.print(flash.size() / 1024); Serial.println(" KB");
+    while(1);
   } else {
-     usb_msc.setUnitReady(false);
-  Serial.println("connected to Intellivision");
-  Serial.println("--------------------------");
+    usb_msc.setUnitReady(false);
+    Serial.println("connected to Intellivision");
+    Serial.println("--------------------------");
   }
- // delay(1000);
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -1039,8 +1055,8 @@ void loop()
 
 	// overclocking isn't necessary for most functions - but XEGS carts weren't working without it
 	// I guess we might as well have it on all the time.
-  //vreg_set_voltage(VREG_VOLTAGE_1_10);
-  //set_sys_clock_khz(270000, true);
+  vreg_set_voltage(VREG_VOLTAGE_1_10);
+  set_sys_clock_khz(270000, true);
  
   //multicore_launch_core1(core1_main);
 
@@ -1152,7 +1168,7 @@ void loop()
         RAM[0x889]=0;
     	  IntyMenu(1);
 	 	    RAM[0x119]=1;
-      	sleep_ms(800);
+      	sleep_ms(900);
         Serial.print("new path:");Serial.println(curPath);
       	break;
       case 2:  // run file list
@@ -1160,21 +1176,23 @@ void loop()
     	  RAM[0x889]=0;
 	 	    LoadGame();
 		    RAM[0x119]=1;
-      	sleep_ms(800);
+      	sleep_ms(1400);
       	break;
       case 3:  // next page
 	      cmd_executing=true;
         RAM[0x889]=0;
         IntyMenu(2);
 		    RAM[0x119]=1;
-        sleep_ms(800);
+        Serial.println("next page");
+        sleep_ms(900);
       	break;
       case 4:  // prev page
         cmd_executing=true;
         RAM[0x889]=0; 
      	  IntyMenu(3);
 		    RAM[0x119]=1;
-        sleep_ms(800);
+        Serial.println("prev page");
+        sleep_ms(900);
 	 	    break;
 	    case 5:  // up dir
         cmd_executing=true;
@@ -1182,7 +1200,7 @@ void loop()
      	  DirUp();
 		    IntyMenu(1);
 		    RAM[0x119]=1;
-        sleep_ms(800);
+        sleep_ms(900);
         Serial.print("Dirup->new path:");Serial.println(curPath);
 	 	    break;
     }     
